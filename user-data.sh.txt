@@ -1,0 +1,33 @@
+#!/bin/bash
+sudo yum install aws-cli -y
+sudo yum install cronie -y
+
+sudo systemctl start crond
+sudo systemctl enable crond
+
+sudo nano /root/sysinfo.sh
+
+
+LOGFILE="/var/log/sysinfo"
+
+echo "------ Sysinfo Log: $(date) ------" >> $LOGFILE
+echo "Current date and time: $(date)" >> $LOGFILE
+echo "System uptime, logged-in users, CPU load:" >> $LOGFILE
+w >> $LOGFILE
+echo "Memory usage:" >> $LOGFILE
+free -m >> $LOGFILE
+echo "Disk space usage:" >> $LOGFILE
+df -h >> $LOGFILE
+echo "Open TCP ports:" >> $LOGFILE
+ss -tulpn >> $LOGFILE
+echo "Checking connection to ukr.net:" >> $LOGFILE
+ping -c1 -w1 ukr.net >> $LOGFILE
+echo "List of SUID programs:" >> $LOGFILE
+find / -perm /4000 2>/dev/null >> $LOGFILE
+echo "--------------------------------------------" >> $LOGFILE
+
+sudo chmod +x /root/sysinfo.sh
+
+sudo nano /etc/crontab
+
+* * * * 1-5 root /root/sysinfo.sh
